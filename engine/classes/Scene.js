@@ -25,8 +25,10 @@ class Scene {
      * @param {Color} backgroundColor The background color for the scene. We can 
      * use any format that CSS understands, e.g. "red", "#FF0000", "rgb(255, 0, 0)"
      */
-    constructor(backgroundColor) {
+    constructor(backgroundColor, pixelWidth = 100, aspectRatio = 1) {
         this.backgroundColor = backgroundColor
+        this.pixelWidth = pixelWidth
+        this.aspectRatio = aspectRatio
         this.hasStarted = false;
 
     }
@@ -80,19 +82,29 @@ class Scene {
 
         ctx.save()
         ctx.translate(-Camera.main.transform.x, -Camera.main.transform.y)
-        ctx.translate(ctx.canvas.width/2, ctx.canvas.height/2)
+        ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2)
+        ctx.scale(Camera.main.transform.scaleX, Camera.main.transform.scaleY)
+
+        //Now figure out how to get this thing on the screen
+        let desiredWidth = this.pixelWidth;
+        let desiredHeight = this.pixelWidth / this.aspectRatio;
+        let plannedScaleX = desiredWidth;
+        let plannedScaleY = desiredHeight;
+        let plannedScale = Math.min(plannedScaleX, plannedScaleY)
+
+        ctx.scale(plannedScale, plannedScale);
 
         let sortedLayers = [...this.gameObjects]
-        sortedLayers = sortedLayers.sort((a,b)=>a.layer - b.layer)
+        sortedLayers = sortedLayers.sort((a, b) => a.layer - b.layer)
 
         //Call draw on all the game objects
         for (const gameObject of sortedLayers) {
             //TODO: Setup blur if needed
-            if(gameObject.layer == -1){
+            if (gameObject.layer == -1) {
                 //Glow
                 ctx.filter = "blur(2px)"
             }
-            else{
+            else {
                 //Don't glow
                 ctx.filter = "none"
             }

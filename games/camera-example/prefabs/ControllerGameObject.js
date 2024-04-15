@@ -4,7 +4,10 @@ class ControllerGameObject extends GameObject{
   }
   start(ctx){
     this.addComponent(new CameraMoverComponent())
+    this.addComponent(new InitializeComponent())
     super.start(ctx)
+
+    
   }
   
 }
